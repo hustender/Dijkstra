@@ -1,28 +1,34 @@
 import java.util.*;
 
 public class Dijkstra {
-    public static Node current;
-    public static Queue<Node> queue = new PriorityQueue<>();
-    public static Set<Node> done = new HashSet<>();
+    public Node start;
+    public Node target;
+    public Queue<Node> queue = new PriorityQueue<>();
+    public Set<Node> done = new HashSet<>();
 
-    public static Stack<Node> bestPath = new Stack<>();
+    public Stack<Node> bestPath = new Stack<>();
 
     public static void main(String[] args) {
+        new Dijkstra();
+    }
+
+    public Dijkstra() {
         createGraph();
-        current.cost = 0;
-        queue.add(current);
+        start.cost = 0;
+        queue.add(start);
         while(!queue.isEmpty()) {
-            iter();
+            Node next = queue.poll();
+            if(next == target) break;
+            iter(next);
         }
         done();
     }
 
-    public static void iter() {
-        current = queue.poll();
-        done.add(current);
+    public void iter(Node current) {
+        if(done.contains(current)) return; else done.add(current);
 
         current.neighbours.keySet().stream()
-                .filter(n -> (current.neighbours.get(n) + current.cost) < n.cost && !done.contains(n))
+                .filter(n -> (current.neighbours.get(n) + current.cost) < n.cost)
                 .forEach(n -> {
                     n.cost = current.cost + current.neighbours.get(n);
                     n.parent = current;
@@ -30,20 +36,21 @@ public class Dijkstra {
                 });
     }
 
-    public static void done() {
+    public void done() {
         System.out.println("Done!");
-        System.out.println("Cost: " + current.cost);
+        System.out.println("Cost: " + target.cost);
         System.out.print("Best Way");
-        while(current != null) {
-            bestPath.push(current);
-            current = current.parent;
+        Node prior = target;
+        while(prior != null) {
+            bestPath.push(prior);
+            prior = prior.parent;
         }
         while(!bestPath.isEmpty()) {
             System.out.print( " -> " + bestPath.pop());
         }
     }
 
-    public static void createGraph() {
+    public void createGraph() {
         Node a = new Node("A"), b = new Node("B"), c = new Node("C"), d = new Node("D"), e = new Node("E"), f = new Node("F"), g = new Node("G");
         a.addNeighbour(b, 4);
         a.addNeighbour(c, 8);
@@ -57,6 +64,7 @@ public class Dijkstra {
         e.addNeighbour(g, 2);
         e.addNeighbour(f, 6);
         f.addNeighbour(g, 7);
-        current = a;
+        start = a;
+        target = g;
     }
 }
